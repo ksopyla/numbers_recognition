@@ -23,7 +23,7 @@ def load_dataset(digits_dir,img_size, digits_count, max_files=float('inf')):
     Params
     ============
     digits_dir - root dir, containning the font folders with digits
-    img_size - size of each image
+    img_size - tuple, size of each image
     digits_count - how many digits is on the image
     
     Return

@@ -73,7 +73,7 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
 font_size = 26 
 font_names = ["OpenSans-Regular.ttf", "Mothproof_Script.ttf", "Calligraffiti.ttf"]
 font_path = "fonts/{}"
-folder='shared/Digits_2'
+folder='shared/Digits_23'
 
 #how many images with one type of font, final dataset has size number_of_images*number_of_fonts
 number_of_images=1000
@@ -107,11 +107,14 @@ for font_name in font_names:
         #font_folder = os.path.splitext(font_name)[0]
         digit_file = '{}{}_{}.png'.format(img_save_folder,numbers_str,int(time.time()*1000))
         #print digit_file
+        
+        #convert to grayscale
+        img = img.convert('L')
         img.save(digit_file)
         
-        if a % 100 ==0:
+        if a % 500 ==0:
             print("#{} - time: {}".format(a,dt.datetime.now()))
-            plt.imshow(img)
+            plt.imshow(img,cmap=plt.cm.gray, interpolation='bicubic')
             plt.show()
             #time.sleep(0.5)
 
