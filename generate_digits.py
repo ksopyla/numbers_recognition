@@ -11,11 +11,6 @@ import time
 import os
 
 
-def getSize(txt, font):
-    testImg = Image.new('RGB', (1, 1))
-    testDraw = ImageDraw.Draw(testImg)
-    return testDraw.textsize(txt, font)
-
 
 def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    colorText = "black"):
     '''
@@ -33,7 +28,7 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
     '''
     digit_offset=5
     dh=-5 #height offset
-    angle_var=20
+    angle_var=25
 
 
     img = Image.new('RGBA', img_size, colorBackground)
@@ -76,13 +71,16 @@ font_path = "fonts/{}"
 folder='shared/Digits_23'
 
 #how many images with one type of font, final dataset has size number_of_images*number_of_fonts
-number_of_images=1000
+number_of_images=1
 
 #image size
 img_size=(56,32)
+
 #how many digits to generate
 random_digits=2
 
+
+#plt.figure(figsize=(20,10))
 for font_name in font_names:
 
     
@@ -102,21 +100,14 @@ for font_name in font_names:
        
         img = genDigitsImg(numbers,font,img_size=img_size)
         
-        
-        #get the font name without extension
-        #font_folder = os.path.splitext(font_name)[0]
         digit_file = '{}{}_{}.png'.format(img_save_folder,numbers_str,int(time.time()*1000))
-        #print digit_file
         
         #convert to grayscale
         img = img.convert('L')
-        img.save(digit_file)
+        #img.save(digit_file)
         
-        if a % 500 ==0:
-            print("#{} - time: {}".format(a,dt.datetime.now()))
+        if a % 1 ==0:
+            #plt.axis('off')
             plt.imshow(img,cmap=plt.cm.gray, interpolation='bicubic')
             plt.show()
-            #time.sleep(0.5)
-
-
-
+            
