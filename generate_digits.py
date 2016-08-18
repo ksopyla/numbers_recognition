@@ -1,4 +1,3 @@
-
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -74,7 +73,7 @@ folder='shared/Digits_23'
 number_of_images=1
 
 #image size
-img_size=(56,32)
+img_size=(56,32)#width, height
 
 #how many digits to generate
 random_digits=2
@@ -104,7 +103,7 @@ for font_name in font_names:
         
         #convert to grayscale
         img = img.convert('L')
-        #img.save(digit_file)
+        img.save(digit_file)
         
         if a % 1 ==0:
             #plt.axis('off')

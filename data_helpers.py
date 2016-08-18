@@ -23,7 +23,7 @@ def load_dataset(digits_dir,img_size, digits_count, max_files=float('inf')):
     Params
     ============
     digits_dir - root dir, containning the font folders with digits
-    img_size - tuple, size of each image
+    img_size - tuple, size of each image (width,height)
     digits_count - how many digits is on the image
     
     Return
@@ -55,7 +55,7 @@ def load_dataset(digits_dir,img_size, digits_count, max_files=float('inf')):
         Y[i,:] = encode2vector(number_str)
     
     
-    return (X,Y)
+    return (X,Y,img_files)
     
     
 def encode2vector(number_str):
@@ -82,5 +82,26 @@ def encode2vector(number_str):
         
         
     return vec
+    
+
+def random_batch(X,Y, batch_size=128):
+    
+    shape_X = X.shape
+    shape_Y = Y.shape
+    
+    if shape_X[0]!=shape_Y[0]:
+        raise ValueError('X and Y has different number of examples')
+        
+    num_ele = shape_X[0]
+    
+    if batch_size > num_ele:
+        raise ValueError('Batch cant be larger then X has rows')
+        
+    
+    rand_idx = np.random.choice(num_ele,batch_size, replace=False)
+    
+    return X[rand_idx,:], Y[rand_idx,:],rand_idx
+
+
     
     
