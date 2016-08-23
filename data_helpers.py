@@ -47,7 +47,6 @@ def load_dataset(digits_dir,img_size, digits_count, max_files=float('inf')):
     
     for i,file in enumerate(img_files):
         img = imread(file)
-        
         #take number from file name
         number_str = os.path.basename(file).split('_')[0]
         
@@ -83,6 +82,22 @@ def encode2vector(number_str):
         
     return vec
     
+
+def decode2digits(vector,digits=2):
+    '''
+    decode from vector representation to str, each digit takes 10 continous places,
+    vector dim is digits*10
+    this is a form of one-hot encoding, where we encode each digit and 
+    then concatenate those intermediete vectors
+    '''
+    digits= vector.reshape(digits,10)
+    nnz = digits.nonzero()
+    positions = nnz[1]
+    
+    return decode2digits_pos(positions)
+    
+def decode2digits_pos(positions):
+    return "".join([ str(d) for d in positions])
 
 def random_batch(X,Y, batch_size=128):
     

@@ -36,7 +36,7 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
         
         digit_str = str(nr)
         fw, fh=font.getsize(digit_str)
-        im1 = Image.new('RGBA',(fw,fh+10),colorBackground)
+        im1 = Image.new('RGBA',(fw,fh+15),colorBackground)
         
         d1  = ImageDraw.Draw(im1)
         d1.text( (0,dh),digit_str,font=font, fill=colorText)
@@ -50,8 +50,8 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
         im1_rot=im1.rotate(angle, resample=Image.BILINEAR,  expand=1)
         #im1_rot=im1.rotate(angle, resample=Image.BICUBIC,  expand=1)
         
-        pad_w = rnd.randint(-5,6)
-        pad_h = rnd.randint(5)
+        pad_w = rnd.randint(-5,5)
+        pad_h = rnd.randint(4)
         
         pos_w = digit_offset+pad_w
         
@@ -65,18 +65,24 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
     
 
 font_size = 26 
+#font_size = 24
+
+
 font_names = ["OpenSans-Regular.ttf", "Mothproof_Script.ttf", "Calligraffiti.ttf"]
+font_names = ["OpenSans-Regular.ttf"]
 font_path = "fonts/{}"
-folder='shared/Digits_23'
+folder='shared/Digits_4'
 
 #how many images with one type of font, final dataset has size number_of_images*number_of_fonts
-number_of_images=1
+number_of_images=4
 
 #image size
-img_size=(56,32)#width, height
+img_size=(104,32)#width, height
+#img_size=(32,28)#width, height
 
 #how many digits to generate
-random_digits=2
+random_digits=4
+dispaly_count=1
 
 
 #plt.figure(figsize=(20,10))
@@ -103,9 +109,9 @@ for font_name in font_names:
         
         #convert to grayscale
         img = img.convert('L')
-        img.save(digit_file)
+        #img.save(digit_file)
         
-        if a % 1 ==0:
+        if a % dispaly_count ==0:
             #plt.axis('off')
             plt.imshow(img,cmap=plt.cm.gray, interpolation='bicubic')
             plt.show()
