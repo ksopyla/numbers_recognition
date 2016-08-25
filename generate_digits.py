@@ -64,28 +64,33 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
     return img
     
 
-font_size = 26 
-#font_size = 24
-
-
 font_names = ["OpenSans-Regular.ttf", "Mothproof_Script.ttf", "Calligraffiti.ttf"]
 font_names = ["OpenSans-Regular.ttf"]
 font_path = "fonts/{}"
 folder='shared/Digits_4'
+font_size = 26 
 
-#how many images with one type of font, final dataset has size number_of_images*number_of_fonts
-number_of_images=4
 
-#image size
-img_size=(104,32)#width, height
-#img_size=(32,28)#width, height
+#how many digits to generate
+#random_digits=1
+#font_size = 24
+#img_size=(32,28)#width, height (good for one digit)
+
+#how many digits to generate
+#random_digits=2
+#img_size=(56,32)#width, height, good for two digits
+
 
 #how many digits to generate
 random_digits=4
-dispaly_count=1
+img_size=(104,32)#width, height, good for four digits
 
 
-#plt.figure(figsize=(20,10))
+
+#how many images with one type of font, final dataset has size number_of_images*number_of_fonts
+number_of_images=1000
+dispaly_count=100
+
 for font_name in font_names:
 
     
@@ -109,7 +114,7 @@ for font_name in font_names:
         
         #convert to grayscale
         img = img.convert('L')
-        #img.save(digit_file)
+        img.save(digit_file)
         
         if a % dispaly_count ==0:
             #plt.axis('off')

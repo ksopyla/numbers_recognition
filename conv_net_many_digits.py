@@ -8,10 +8,18 @@ import tensorflow as tf
 import datetime as dt
 
 
-Xdata,Y,files = dh.load_dataset('shared/Digits_2',(56,32),2)
+img_w = 56
+img_h = 32
+digits=2
+Xdata,Y,files = dh.load_dataset('shared/Digits_2',(img_w,img_h),digits)
+
+img_w = 104
+img_h = 32
+digits=4
+Xdata,Y,files = dh.load_dataset('shared/Digits_4',(img_w,img_h),digits)
 
 # invert and normalize to [0,1]
-#X =  (255- Xdata)/255.0
+# X =  (255- Xdata)/255.0
 
 
 # standarization 
@@ -23,12 +31,15 @@ X = (Xdata-x_mean)/(x_std+0.00001)
 # Parameters
 learning_rate = 0.001
 batch_size = 64
-training_iters =1000*batch_size 
+training_iters =500*batch_size 
 display_step = 50
 
 # Network Parameters
-n_input = 32*56 
-n_classes = 2*10 # 
+
+n_input = img_w*img_h 
+
+
+n_classes = digits*10 # 
 dropout = 0.75 # Dropout, probability to keep units
 
 # tf Graph input
@@ -45,21 +56,21 @@ def max_pool(img, k):
 
 def conv_net(_X, _weights, _biases, _dropout):
     # Reshape input picture
-    _X = tf.reshape(_X, shape=[-1, 32, 56, 1])
+    _X = tf.reshape(_X, shape=[-1, img_h, img_w, 1])
 
     # Convolution Layer 3x3x32 first, layer with relu
     conv1 = conv2d(_X, _weights['wc1'], _biases['bc1'])
     # Max Pooling (down-sampling), change input size by factor of 2 
     conv1 = max_pool(conv1, k=2)
     # Apply Dropout
-    #conv1 = tf.nn.dropout(conv1, _dropout)
+    conv1 = tf.nn.dropout(conv1, _dropout)
     
     # Convolution Layer, 3x3x64
     conv2 = conv2d(conv1, _weights['wc2'], _biases['bc2'])
     # Max Pooling (down-sampling)
     conv2 = max_pool(conv2, k=2)
     # Apply Dropout
-    #conv2 = tf.nn.dropout(conv2, _dropout)
+    conv2 = tf.nn.dropout(conv2, _dropout)
 
     # Fully connected layer
     dense1 = tf.reshape(conv2, [-1, _weights['wd1'].get_shape().as_list()[0]]) # Reshape conv2 output to fit dense layer input
@@ -73,17 +84,17 @@ def conv_net(_X, _weights, _biases, _dropout):
 
 # Store layers weight & bias
 weights = {
-    'wc1': tf.Variable(tf.random_normal([3, 3, 1, 32]),name='wc1'), # 3x3 conv, 1 input, 32 outputs
-    'wc2': tf.Variable(tf.random_normal([3, 3, 32, 64]),name='wc2'), # 3x3 conv, 32 inputs, 64 outputs
-    'wd1': tf.Variable(tf.random_normal([8*14*64, 1024]),name='wd1'), # fully connected, 64/(2*2*2)=8, 304/(2*2*2)=38 (three max pool k=2) inputs, 1024 outputs
-    'out': tf.Variable(tf.random_normal([1024, 2*10]),name='w_out') # 1024 inputs, 2*10 output
+    'wc1': tf.Variable(0.1*tf.random_normal([3, 3, 1, 32]),name='wc1'), # 3x3 conv, 1 input, 32 outputs
+    'wc2': tf.Variable(0.1*tf.random_normal([3, 3, 32, 64]),name='wc2'), # 3x3 conv, 32 inputs, 64 outputs
+    'wd1': tf.Variable(0.1*tf.random_normal([8*26*64, 1024]),name='wd1'), # fully connected, 64/(2*2*2)=8, 304/(2*2*2)=38 (three max pool k=2) inputs, 1024 outputs
+    'out': tf.Variable(0.1*tf.random_normal([1024, n_classes]),name='w_out') # 1024 inputs, 2*10 output
 }
 
 biases = {
-    'bc1': tf.Variable(tf.random_normal([32]),name='bc1'),
-    'bc2': tf.Variable(tf.random_normal([64]),name='bc2'),
-    'bd1': tf.Variable(tf.random_normal([1024]),name='bd1'),
-    'out': tf.Variable(tf.random_normal([2*10]),name='b_out')
+    'bc1': tf.Variable(0.1*tf.random_normal([32]),name='bc1'),
+    'bc2': tf.Variable(0.1*tf.random_normal([64]),name='bc2'),
+    'bd1': tf.Variable(0.1*tf.random_normal([1024]),name='bd1'),
+    'out': tf.Variable(0.1*tf.random_normal([n_classes]),name='b_out')
 }
 
 # Construct model
@@ -128,12 +139,12 @@ optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,name="Adam_opt").
 # then sum all good results and compute mean (accuracy)
 
 #batch, rows, cols
-p = tf.reshape(pred,[-1,2,10])
+p = tf.reshape(pred,[-1,digits,10])
 #max idx acros the rows
 #max_idx_p=tf.argmax(p,2).eval()
 max_idx_p=tf.argmax(p,2)
 
-l = tf.reshape(y,[-1,2,10])
+l = tf.reshape(y,[-1,digits,10])
 #max idx acros the rows
 #max_idx_l=tf.argmax(l,2).eval()
 max_idx_l=tf.argmax(l,2)
@@ -206,13 +217,13 @@ with tf.Session() as sess:
             k=idx[batch_idx]
             
             pp = sess.run(pred, feed_dict={x: batch_xs, y: batch_ys, keep_prob: 1.})
-            p = tf.reshape(pp,[batch_size,2,10])
+            p = tf.reshape(pp,[batch_size,digits,10])
             max_idx_p=tf.argmax(p,2).eval()
             
             predicted_digits = dh.decode2digits_pos(max_idx_p[batch_idx,:])
 
 
-            l = tf.reshape(batch_ys,[batch_size,2,10])
+            l = tf.reshape(batch_ys,[batch_size,digits,10])
             #max idx acros the rows
             max_idx_l=tf.argmax(l,2).eval()
             true_digits =dh.decode2digits_pos(max_idx_l[batch_idx,:])
@@ -225,19 +236,38 @@ with tf.Session() as sess:
         
         step += 1
         
-        if step%100==0:
+        if step%1000==0:
             save_path = saver.save(sess, model_file)
         
         
     end_epoch = dt.datetime.now()
     print("Optimization Finished, end={} duration={}".format(end_epoch,end_epoch-start_epoch))
     
-    
     test_size = min(100, X.shape[0])
     test_X = X[0:test_size,:]
     test_Y = Y[0:test_size,:]
     # Calculate accuracy 
     print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: test_X, y: test_Y, keep_prob: 1.}))
+    
+    pp = sess.run(pred, feed_dict={x: test_X, y: test_Y, keep_prob: 1.})
+    p = tf.reshape(pp,[-1,digits,10])
+    max_idx_p=tf.argmax(p,2).eval()
+    l = tf.reshape(test_Y,[-1,digits,10])
+    #max idx acros the rows
+    max_idx_l=tf.argmax(l,2).eval()
+    
+    for k in range(test_size):
+        
+        true_digits =dh.decode2digits_pos(max_idx_l[k,:])
+        predicted_digits = dh.decode2digits_pos(max_idx_p[k,:])
+        
+        got_error=''
+        if( true_digits != predicted_digits):
+            got_error='<--- error'
+        print("true : {}, predicted {} {}".format(true_digits, predicted_digits,got_error))        
+    
+    
+    
     
 
 import matplotlib.pyplot as plt
@@ -247,7 +277,8 @@ import matplotlib.pyplot as plt
 
 plt.figure(1)
 plt.subplot(211)
-plt.plot(losses, '-b', label='Loss')
+#plt.plot(losses, '-g', label='Loss')
+plt.semilogy(losses, '-g', label='Loss')
 plt.title('Loss function')
 plt.subplot(212)
 plt.plot(accuracies, '-r', label='Acc')
