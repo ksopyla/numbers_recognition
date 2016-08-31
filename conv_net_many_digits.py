@@ -18,6 +18,11 @@ img_h = 32
 digits=4
 Xdata,Y,files = dh.load_dataset('shared/Digits_4',(img_w,img_h),digits)
 
+img_w = 160
+img_h = 32
+digits=6
+Xdata,Y,files = dh.load_dataset('shared/Digits_6f3',(img_w,img_h),digits)
+
 # invert and normalize to [0,1]
 # X =  (255- Xdata)/255.0
 
@@ -31,7 +36,7 @@ X = (Xdata-x_mean)/(x_std+0.00001)
 # Parameters
 learning_rate = 0.001
 batch_size = 64
-training_iters =500*batch_size 
+training_iters =1500 
 display_step = 50
 
 # Network Parameters
@@ -83,11 +88,26 @@ def conv_net(_X, _weights, _biases, _dropout):
     return out
 
 # Store layers weight & bias
+
+
+#relu init sqrt(2/node_input)
+init_wc1 = np.sqrt(2.0/(img_w*img_h)) #
+init_wc2 = np.sqrt(2.0/(3*3*32)) 
+init_wd1 = np.sqrt(2.0/(8*40*64))
+init_out = np.sqrt(2.0/1024)
+
+
+alpha=0.005
+init_wc1 = alpha
+init_wc2 = alpha 
+init_wd1 = alpha
+init_out = alpha
+
 weights = {
-    'wc1': tf.Variable(0.1*tf.random_normal([3, 3, 1, 32]),name='wc1'), # 3x3 conv, 1 input, 32 outputs
-    'wc2': tf.Variable(0.1*tf.random_normal([3, 3, 32, 64]),name='wc2'), # 3x3 conv, 32 inputs, 64 outputs
-    'wd1': tf.Variable(0.1*tf.random_normal([8*26*64, 1024]),name='wd1'), # fully connected, 64/(2*2*2)=8, 304/(2*2*2)=38 (three max pool k=2) inputs, 1024 outputs
-    'out': tf.Variable(0.1*tf.random_normal([1024, n_classes]),name='w_out') # 1024 inputs, 2*10 output
+    'wc1': tf.Variable(init_wc1*tf.random_normal([3, 3, 1, 32]),name='wc1'), # 3x3 conv, 1 input, 32 outputs
+    'wc2': tf.Variable(init_wc2*tf.random_normal([3, 3, 32, 64]),name='wc2'), # 3x3 conv, 32 inputs, 64 outputs
+    'wd1': tf.Variable(init_wd1*tf.random_normal([8*40*64, 1024]),name='wd1'), # fully connected, 64/(2*2*2)=8, 304/(2*2*2)=38 (three max pool k=2) inputs, 1024 outputs
+    'out': tf.Variable(init_out*tf.random_normal([1024, n_classes]),name='w_out') # 1024 inputs, 2*10 output
 }
 
 biases = {
@@ -181,7 +201,7 @@ with tf.Session() as sess:
     #     sess.run(init)
         
     
-    step = 1
+    step = 0
     
     epoch=0
     start_epoch=dt.datetime.now()
@@ -189,15 +209,15 @@ with tf.Session() as sess:
     
     
     # Keep training until reach max iterations
-    while step * batch_size < training_iters:
+    while step <= training_iters:
         batch_xs, batch_ys, idx = dh.random_batch(X, Y, batch_size)
         
         
         # Fit training using batch data
-        #print("##############")
-        print("#{} opt step {}".format(step,dt.datetime.now()))
+        start_op = dt.datetime.now()
         sess.run(optimizer, feed_dict={x: batch_xs, y: batch_ys, keep_prob: dropout})
-        #print("end step {}".format(dt.datetime.now()))        
+        end_op = dt.datetime.now()
+        print("#{} opt step {} {} takes {}".format(step,start_op,end_op, end_op-start_op))     
         
         if step % display_step == 0:
             
@@ -211,7 +231,7 @@ with tf.Session() as sess:
             batch_loss = sess.run(loss, feed_dict={x: batch_xs, y: batch_ys, keep_prob: 1.})
             losses.append(batch_loss)
             
-            print("Iter " + str(step*batch_size) + " started={}".format(dt.datetime.now()) + ", Minibatch Loss= " + "{}".format(batch_loss) + ", Training Accuracy= " + "{}".format(acc))
+            print("##Iter " + str(step) + ", Minibatch Loss= " + "{}".format(batch_loss) + ", Training Accuracy= " + "{}".format(acc))
             
             batch_idx=0
             k=idx[batch_idx]
@@ -236,16 +256,17 @@ with tf.Session() as sess:
         
         step += 1
         
-        if step%1000==0:
-            save_path = saver.save(sess, model_file)
+        # if step%1000==0:
+        #     save_path = saver.save(sess, model_file)
         
         
     end_epoch = dt.datetime.now()
     print("Optimization Finished, end={} duration={}".format(end_epoch,end_epoch-start_epoch))
     
     test_size = min(100, X.shape[0])
-    test_X = X[0:test_size,:]
-    test_Y = Y[0:test_size,:]
+    random_idx = np.random.choice(X.shape[0],test_size, replace=False)
+    test_X = X[random_idx,:]
+    test_Y = Y[random_idx,:]
     # Calculate accuracy 
     print("Testing Accuracy:", sess.run(accuracy, feed_dict={x: test_X, y: test_Y, keep_prob: 1.}))
     
@@ -274,14 +295,31 @@ import matplotlib.pyplot as plt
 
 # plt.plot(losses)
 # plt.plot(accuracies)
+iter_steps = [ display_step*k for k in range((training_iters/display_step)+1)]
 
-plt.figure(1)
+trainning_version = 'digits6f3_acc_init_{}.png'.format(alpha)
+
+imh =plt.figure(1,figsize=(15,8),dpi=160)
+#imh.tight_layout() 
+#imh.subplots_adjust(top=0.88)
+
+imh.suptitle(trainning_version)
 plt.subplot(211)
-#plt.plot(losses, '-g', label='Loss')
-plt.semilogy(losses, '-g', label='Loss')
+plt.grid(b=True, which='major', axis='y')
+plt.plot(iter_steps,losses, '-g', label='Loss',linewidth=2.0)
+#plt.semilogy(iter_steps,losses, '-g', label='Loss',linewidth=2.0)
 plt.title('Loss function')
 plt.subplot(212)
-plt.plot(accuracies, '-r', label='Acc')
+plt.ylim([0,1.1])
+plt.grid(b=True, which='major', axis='y')
+plt.plot(iter_steps,accuracies, '-r', label='Acc', linewidth=2.0)
 plt.title('Accuracy')
-    
+plt.tight_layout()
+plt.subplots_adjust(top=0.88)
+
+
+plt.savefig(trainning_version)   
+
+
+
     

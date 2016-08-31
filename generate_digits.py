@@ -50,8 +50,8 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
         im1_rot=im1.rotate(angle, resample=Image.BILINEAR,  expand=1)
         #im1_rot=im1.rotate(angle, resample=Image.BICUBIC,  expand=1)
         
-        pad_w = rnd.randint(-5,5)
-        pad_h = rnd.randint(4)
+        pad_w = rnd.randint(-3,5)
+        pad_h = rnd.randint(-1,6)
         
         pos_w = digit_offset+pad_w
         
@@ -64,29 +64,31 @@ def genDigitsImg(numbers,font,img_size=(64,32), colorBackground = "white",    co
     return img
     
 
-font_names = ["OpenSans-Regular.ttf", "Mothproof_Script.ttf", "Calligraffiti.ttf"]
+#font_names = ["OpenSans-Regular.ttf", "Mothproof_Script.ttf", "Calligraffiti.ttf"]
 font_names = ["OpenSans-Regular.ttf"]
 font_path = "fonts/{}"
-folder='shared/Digits_4'
 font_size = 26 
 
 
 #how many digits to generate
 #random_digits=1
-#font_size = 24
-#img_size=(32,28)#width, height (good for one digit)
+#img_size=(32,32)#width, height (good for one digit)
 
 #how many digits to generate
-#random_digits=2
-#img_size=(56,32)#width, height, good for two digits
+random_digits=2
+img_size=(56,32)#width, height, good for two digits
+
+#random_digits=4
+#img_size=(104,32)#width, height, good for two digits
+
 
 
 #how many digits to generate
-random_digits=4
-img_size=(104,32)#width, height, good for four digits
+#random_digits=6
+#img_size=(160,32)#width, height, good for four digits
 
 
-
+folder='shared/Digits_2f1'
 #how many images with one type of font, final dataset has size number_of_images*number_of_fonts
 number_of_images=1000
 dispaly_count=100

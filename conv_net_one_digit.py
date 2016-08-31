@@ -8,16 +8,16 @@ import tensorflow as tf
 import datetime as dt
 
 
-X,Y,files = dh.load_dataset('shared/Digits_11',(32,28),1)
+X,Y,files = dh.load_dataset('shared/Digits_1f1',(32,32),1)
 
 # Parameters
 learning_rate = 0.001
 batch_size = 64
-training_iters =500*batch_size 
+training_iters =500 
 display_step = 50
 
 # Network Parameters
-n_input = 32*28 
+n_input = 32*32 
 n_classes = 10 # 
 dropout = 0.75 # Dropout, probability to keep units
 
@@ -35,7 +35,7 @@ def max_pool(img, k):
 
 def conv_net(_X, _weights, _biases, _dropout):
     # Reshape input picture, treat img as matrix, so nr_rows=height nr_columns=width
-    _X = tf.reshape(_X, shape=[-1, 28, 32, 1])
+    _X = tf.reshape(_X, shape=[-1, 32, 32, 1])
 
     # Convolution Layer 3x3x32 first, layer with relu
     conv1 = conv2d(_X, _weights['wc1'], _biases['bc1'])
@@ -61,19 +61,25 @@ def conv_net(_X, _weights, _biases, _dropout):
     #out = tf.nn.softmax(out)
     return out
 
+
+alpha=0.1
+init_wc1 = alpha
+init_wc2 = alpha 
+init_wd1 = alpha
+init_out = alpha
 # Store layers weight & bias
 weights = {
-    'wc1': tf.Variable(tf.random_normal([3, 3, 1, 32])), # 3x3 conv, 1 input, 32 outputs
-    'wc2': tf.Variable(tf.random_normal([3, 3, 32, 64])), # 3x3 conv, 32 inputs, 64 outputs
-    'wd1': tf.Variable(tf.random_normal([7*8*64, 1024])), # fully connected, 
-    'out': tf.Variable(tf.random_normal([1024, n_classes])) # 1024 inputs, 2*10 output
+    'wc1': tf.Variable(init_wc1*tf.random_normal([3, 3, 1, 32])), # 3x3 conv, 1 input, 32 outputs
+    'wc2': tf.Variable(init_wc2*tf.random_normal([3, 3, 32, 64])), # 3x3 conv, 32 inputs, 64 outputs
+    'wd1': tf.Variable(init_wd1*tf.random_normal([8*8*64, 1024])), # fully connected, 
+    'out': tf.Variable(init_out*tf.random_normal([1024, n_classes])) # 1024 inputs, 2*10 output
 }
 
 biases = {
-    'bc1': tf.Variable(tf.random_normal([32])),
-    'bc2': tf.Variable(tf.random_normal([64])),
-    'bd1': tf.Variable(tf.random_normal([1024])),
-    'out': tf.Variable(tf.random_normal([n_classes]))
+    'bc1': tf.Variable(0.1*tf.random_normal([32])),
+    'bc2': tf.Variable(0.1*tf.random_normal([64])),
+    'bd1': tf.Variable(0.1*tf.random_normal([1024])),
+    'out': tf.Variable(0.1*tf.random_normal([n_classes]))
 }
 
 # Construct model
@@ -81,13 +87,13 @@ pred = conv_net(x, weights, biases, keep_prob)
 
 
 # mnist version
-# loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
-# optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 # ks version
-cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(pred,y)
-loss = tf.reduce_mean(cross_entropy)
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+#cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(pred,y)
+#loss = tf.reduce_mean(cross_entropy)
+#optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 
 # minst version Evaluate model
@@ -103,7 +109,7 @@ losses = list()
 accuracies = list()
 
 saver = tf.train.Saver()
-model_file = "./model_sigmoid_one_digit.ckpt"
+model_file = "./private/models/model_sigmoid_one_digit.ckpt"
 
 # Launch the graph
 with tf.Session() as sess:
@@ -112,7 +118,7 @@ with tf.Session() as sess:
     if( os.path.isfile(model_file)): 
         saver.restore(sess, model_file)
     
-    step = 1
+    step = 0
     
     epoch=0
     start_epoch=dt.datetime.now()
@@ -120,15 +126,15 @@ with tf.Session() as sess:
     
     
     # Keep training until reach max iterations
-    while step * batch_size < training_iters:
+    while step <= training_iters:
         batch_xs, batch_ys, idx = dh.random_batch(X, Y, batch_size)
         
         
         # Fit training using batch data
-        print("##############")
-        print("opt step {}".format(dt.datetime.now()))
+        start_op = dt.datetime.now()
         sess.run(optimizer, feed_dict={x: batch_xs, y: batch_ys, keep_prob: dropout})
-        print("end step {}".format(dt.datetime.now()))        
+        end_op = dt.datetime.now()
+        print("#{} opt step {} {} takes {}".format(step,start_op,end_op, end_op-start_op))            
         
         if step % display_step == 0:
             
@@ -142,7 +148,7 @@ with tf.Session() as sess:
             batch_loss = sess.run(loss, feed_dict={x: batch_xs, y: batch_ys, keep_prob: 1.})
             losses.append(batch_loss)
             
-            print("Iter " + str(step*batch_size) + " started={}".format(dt.datetime.now()) + ", Minibatch Loss= " + "{}".format(batch_loss) + ", Training Accuracy= " + "{}".format(acc))
+            print("Iter " + str(step) + " started={}".format(dt.datetime.now()) + ", Minibatch Loss= " + "{}".format(batch_loss) + ", Training Accuracy= " + "{}".format(acc))
             
             epoch+=1
         
@@ -156,7 +162,7 @@ with tf.Session() as sess:
     print("Optimization Finished, end={} duration={}".format(end_epoch,end_epoch-start_epoch))
     
     
-    test_size = min(1000, X.shape[0])
+    test_size = min(400, X.shape[0])
     test_X = X[0:test_size,:]
     test_Y = Y[0:test_size,:]
     # Calculate accuracy 
@@ -165,15 +171,30 @@ with tf.Session() as sess:
 
 import matplotlib.pyplot as plt
 
-# plt.plot(losses)
-# plt.plot(accuracies)
+iter_steps = [ display_step*k for k in range((training_iters/display_step)+1)]
 
-plt.figure(1)
+trainning_version = './private/plots/digits1f1_acc_init_{}.png'.format(alpha)
+
+imh =plt.figure(1,figsize=(15,8),dpi=160)
+#imh.tight_layout() 
+#imh.subplots_adjust(top=0.88)
+
+imh.suptitle(trainning_version)
 plt.subplot(211)
-plt.plot(losses, '-b', label='Loss')
+plt.grid(b=True, which='major', axis='y')
+plt.plot(iter_steps,losses, '-g', label='Loss',linewidth=2.0)
+#plt.semilogy(iter_steps,losses, '-g', label='Loss',linewidth=2.0)
 plt.title('Loss function')
 plt.subplot(212)
-plt.plot(accuracies, '-r', label='Acc')
+plt.ylim([0,1.1])
+plt.grid(b=True, which='major', axis='y')
+plt.plot(iter_steps,accuracies, '-r', label='Acc', linewidth=2.0)
 plt.title('Accuracy')
+plt.tight_layout()
+plt.subplots_adjust(top=0.88)
+
+plt.savefig(trainning_version) 
+
+
     
     
