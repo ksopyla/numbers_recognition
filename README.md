@@ -28,4 +28,4 @@ Then run the classification script with particular implementation of neural net.
 # Code
 
 * download code from Github - https://github.com/ksopyla/numbers_recognition
-* run python code online in PLON - https://plon.io/explore/author/krzysztofsopyla
+* run python code online in PLON - https://plon.io/explore/tensorflow-numbers-recognit/UJqSN82nBK3dRC1jE

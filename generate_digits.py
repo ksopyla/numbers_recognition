@@ -84,14 +84,14 @@ img_size=(56,32)#width, height, good for two digits
 
 
 #how many digits to generate
-#random_digits=6
-#img_size=(160,32)#width, height, good for four digits
+random_digits=6
+img_size=(160,32)#width, height, good for four digits
 
 
 folder='shared/Digits_2f1'
 #how many images with one type of font, final dataset has size number_of_images*number_of_fonts
-number_of_images=1000
-dispaly_count=100
+number_of_images=10
+dispaly_count=1
 
 for font_name in font_names:
 
@@ -116,10 +116,10 @@ for font_name in font_names:
         
         #convert to grayscale
         img = img.convert('L')
-        img.save(digit_file)
+        #img.save(digit_file)
         
         if a % dispaly_count ==0:
-            #plt.axis('off')
+            plt.axis('off')
             plt.imshow(img,cmap=plt.cm.gray, interpolation='bicubic')
             plt.show()
             
