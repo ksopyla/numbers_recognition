@@ -97,7 +97,7 @@ init_wd1 = np.sqrt(2.0/(8*40*64))
 init_out = np.sqrt(2.0/1024)
 
 
-alpha=0.005
+alpha=0.5
 init_wc1 = alpha
 init_wc2 = alpha 
 init_wd1 = alpha
@@ -297,7 +297,7 @@ import matplotlib.pyplot as plt
 # plt.plot(accuracies)
 iter_steps = [ display_step*k for k in range((training_iters/display_step)+1)]
 
-trainning_version = 'digits6f3_acc_init_{}.png'.format(alpha)
+trainning_version = 'private/plots/digits6f3_acc_init_{}.png'.format(alpha)
 
 imh =plt.figure(1,figsize=(15,8),dpi=160)
 #imh.tight_layout() 

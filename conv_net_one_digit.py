@@ -87,7 +87,7 @@ pred = conv_net(x, weights, biases, keep_prob)
 
 
 # mnist version
-loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
+loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
 # ks version

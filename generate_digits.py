@@ -119,6 +119,7 @@ for font_name in font_names:
         #img.save(digit_file)
         
         if a % dispaly_count ==0:
+            imh =plt.figure(1,figsize=(15,8),dpi=160)
             plt.axis('off')
             plt.imshow(img,cmap=plt.cm.gray, interpolation='bicubic')
             plt.show()

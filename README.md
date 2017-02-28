@@ -1,13 +1,24 @@
 
 # Tensorflow numbers recognition
 
-Project implements convolutional neural network in TensorFlow. The classification task is to recognize particular digits on images.
+This project implements convolutional neural network in TensorFlow. The classification task is to recognize sequence of digits on images.
+The images were generated randomly. Each digit in the sequence was randomly shifted, padded and twisted in order to get some variation.
 
-The images with digits are generated randomly, where each digit is randomly shifted, padded and twisted in order to get some variation.
-You can easily generate big volume of random images with random digits.
-
+The project contains scritps for generaing big volume of random images with sequence of digits. 
+You can set the sqeunce length and number of images.
 
 ## Neural Net architecture
+There are two scripts, both implements 3 layer convolutional network
+* conv_net_many_digits.py - for classification long digit sequences
+    * layer1 - 3x3conv->max pool->dropout
+    * layer2 - 3x3conv->max pool->dropout
+    * layer3 - Fully connected 1024
+    * output - depends on the sequence length
+* conv_net_one_digit.py -  script for classification only one digit
+    * layer1 - 3x3conv->max pool
+    * layer2 - 3x3conv->max pool
+    * layer3 - Fully connected 1024
+    * output - 10
 
 ## How to run
 
@@ -21,8 +32,7 @@ Then run the classification script with particular implementation of neural net.
 
 * Pillow (3.03)
 * Numpy
-* TensorFlow 0.9
-* 
+* TensorFlow 1.0
 
 
 # Code
