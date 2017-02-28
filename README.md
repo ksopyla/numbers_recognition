@@ -22,17 +22,23 @@ There are two scripts, both implements 3 layer convolutional network
 
 ## How to run
 
-First run script generate_digits.py, set some parameters eg. how many images, how many digits and image size.
-
-Then run the classification script with particular implementation of neural net.
+* First run script generate_digits.py in order to generate some data, 
+    * Adjust script parameters to your need: set how many images, how many digits and image size.
+    * Parameters:
+        * font_size = 26 
+        * folder='shared/Digits_2f1'
+        * random_digits  - how many digits to generate
+        * img_size=(32,32) - image resolution:width, height (good for one digit)
+        * number_of_images=10 - how many images with one type of font, final dataset has size number_of_images*number_of_fonts
+* Run the classification script with particular implementation of neural net.
 
 
 
 ## Libraries
 
-* Pillow (3.03)
+* Pillow (3.03) - for generating images
 * Numpy
-* TensorFlow 1.0
+* TensorFlow 1.0 - for convolutional neural network implementation
 
 
 # Code
